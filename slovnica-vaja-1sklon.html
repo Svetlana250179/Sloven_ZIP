@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaja: Števnik + Pridevnik + Samostalnik</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .score {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        .question-card {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .words-display {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-radius: 10px;
+        }
+        .word-item {
+            display: inline-block;
+            margin: 0 15px;
+        }
+        .word-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .word-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 5px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .number-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .input-field.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        .input-field.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        .input-field.partial {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+        .check-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .check-btn:hover {
+            background: #5568d3;
+        }
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .next-btn:hover {
+            background: #45a049;
+        }
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .feedback.partial {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        .feedback.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .correct-answer {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .explanation {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            border-left: 4px solid #2196f3;
+            display: none;
+        }
+        .explanation.show {
+            display: block;
+        }
+        .progress {
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+        .result-icon {
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .hint {
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Števnik + Pridevnik + Samostalnik</h1>
+        <div class="subtitle">1. sklon (imenovalnik) - Popolna besedna zveza</div>
+        
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="score">
+            Točke: <span id="correct">0</span> / <span id="total">0</span>
+            <span style="margin-left: 20px;">Uspešnost: <span id="percentage">0</span>%</span>
+        </div>
+        
+        <div class="question-card" id="questionCard">
+            <div class="words-display">
+                <div class="word-item">
+                    <div class="word-label">Pridevnik</div>
+                    <div class="word-value" id="adjective"></div>
+                </div>
+                <div class="word-item">
+                    <div class="word-label">Samostalnik</div>
+                    <div class="word-value" id="noun"></div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">
+                    <span><span class="number-badge">1</span>EDNINA</span>
+                    <span class="result-icon" id="singularResult"></span>
+                </label>
+                <input type="text" class="input-field" id="singularInput" placeholder="ena lepa hiša">
+                <div class="hint">Primer: ena lepa hiša</div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">
+                    <span><span class="number-badge">2</span>DVOJINA</span>
+                    <span class="result-icon" id="dualResult"></span>
+                </label>
+                <input type="text" class="input-field" id="dualInput" placeholder="dve lepi hiši">
+                <div class="hint">Primer: dve lepi hiši</div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">
+                    <span><span class="number-badge">3</span>MNOŽINA (3+)</span>
+                    <span class="result-icon" id="pluralResult"></span>
+                </label>
+                <input type="text" class="input-field" id="pluralInput" placeholder="tri lepe hiše">
+                <div class="hint">Primer: tri lepe hiše</div>
+            </div>
+            
+            <button class="check-btn" id="checkBtn" onclick="checkAnswers()">Preveri odgovor</button>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">Naslednja vaja →</button>
+            
+            <div class="feedback" id="feedback"></div>
+            <div class="explanation" id="explanation"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // Moški spol
+            {
+                adjective: "velik",
+                noun: "avto",
+                gender: "moški",
+                singular: ["en velik avto", "ena velika avtomobil"],
+                dual: ["dva velika avta", "dva velika avtomobila"],
+                plural: ["trije veliki avti", "tri veliki avtomobili"],
+                explanation: "Moški spol: števnik (en/dva/trije) + pridevnik (-ø/-a/-i) + samostalnik (-ø/-a/-i)"
+            },
+            {
+                adjective: "mlad",
+                noun: "študent",
+                gender: "moški",
+                singular: ["en mlad študent"],
+                dual: ["dva mlada študenta"],
+                plural: ["trije mladi študentje", "trije mladi študenti"],
+                explanation: "Moški spol za osebe: en mlad študent / dva mlada študenta / trije mladi študentje"
+            },
+            {
+                adjective: "dober",
+                noun: "prijatelj",
+                gender: "moški",
+                singular: ["en dober prijatelj"],
+                dual: ["dva dobra prijatelja"],
+                plural: ["trije dobri prijatelji"],
+                explanation: "Moški spol: en dober / dva dobra / trije dobri"
+            },
+            {
+                adjective: "pameten",
+                noun: "otrok",
+                gender: "moški",
+                singular: ["en pameten otrok"],
+                dual: ["dva pametna otroka"],
+                plural: ["trije pametni otroci"],
+                explanation: "Moški spol: en pameten / dva pametna / trije pametni"
+            },
+            {
+                adjective: "nov",
+                noun: "telefon",
+                gender: "moški",
+                singular: ["en nov telefon"],
+                dual: ["dva nova telefona"],
+                plural: ["trije novi telefoni"],
+                explanation: "Moški spol: en nov / dva nova / trije novi"
+            },
+            
+            // Ženski spol
+            {
+                adjective: "lepa",
+                noun: "hiša",
+                gender: "ženski",
+                singular: ["ena lepa hiša"],
+                dual: ["dve lepi hiši"],
+                plural: ["tri lepe hiše"],
+                explanation: "Ženski spol: števnik (ena/dve/tri) + pridevnik (-a/-i/-e) + samostalnik (-a/-i/-e)"
+            },
+            {
+                adjective: "mlada",
+                noun: "žena",
+                gender: "ženski",
+                singular: ["ena mlada žena"],
+                dual: ["dve mladi ženi"],
+                plural: ["tri mlade žene"],
+                explanation: "Ženski spol: ena mlada žena / dve mladi ženi / tri mlade žene"
+            },
+            {
+                adjective: "zanimiva",
+                noun: "knjiga",
+                gender: "ženski",
+                singular: ["ena zanimiva knjiga"],
+                dual: ["dve zanimivi knjigi"],
+                plural: ["tri zanimive knjige"],
+                explanation: "Ženski spol: ena zanimiva / dve zanimivi / tri zanimive"
+            },
+            {
+                adjective: "velika",
+                noun: "miza",
+                gender: "ženski",
+                singular: ["ena velika miza"],
+                dual: ["dve veliki mizi"],
+                plural: ["tri velike mize"],
+                explanation: "Ženski spol: ena velika / dve veliki / tri velike"
+            },
+            {
+                adjective: "nova",
+                noun: "stvar",
+                gender: "ženski",
+                singular: ["ena nova stvar"],
+                dual: ["dve novi stvari"],
+                plural: ["tri nove stvari"],
+                explanation: "Ženski spol na soglasnik: ena nova / dve novi / tri nove"
+            },
+            
+            // Srednji spol
+            {
+                adjective: "lepo",
+                noun: "mesto",
+                gender: "srednji",
+                singular: ["eno lepo mesto"],
+                dual: ["dve lepi mesti"],
+                plural: ["tri lepa mesta"],
+                explanation: "Srednji spol: števnik (eno/dve/tri) + pridevnik (-o/-i/-a) + samostalnik (-o/-i/-a)"
+            },
+            {
+                adjective: "veliko",
+                noun: "okno",
+                gender: "srednji",
+                singular: ["eno veliko okno"],
+                dual: ["dve veliki okni"],
+                plural: ["tri velika okna"],
+                explanation: "Srednji spol: eno veliko okno / dve veliki okni / tri velika okna"
+            },
+            {
+                adjective: "težko",
+                noun: "delo",
+                gender: "srednji",
+                singular: ["eno težko delo"],
+                dual: ["dve težki deli"],
+                plural: ["tri težka dela"],
+                explanation: "Srednji spol: eno težko / dve težki / tri težka"
+            },
+            {
+                adjective: "modro",
+                noun: "morje",
+                gender: "srednji",
+                singular: ["eno modro morje"],
+                dual: ["dve modri morji"],
+                plural: ["tri modra morja"],
+                explanation: "Srednji spol: eno modro / dve modri / tri modra"
+            },
+            {
+                adjective: "malo",
+                noun: "dete",
+                gender: "srednji",
+                singular: ["eno malo dete"],
+                dual: ["dve mali deteti", "dva mala deteta"],
+                plural: ["tri mala dete"],
+                explanation: "Posebna oblika: eno malo dete / dve mali deteti / tri mala dete"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let correctCount = 0;
+        let totalAnswered = 0;
+        let shuffledQuestions = [];
+        let answered = false;
+
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function normalize(str) {
+            return str.toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        function startQuiz() {
+            shuffledQuestions = shuffle(questions);
+            currentQuestion = 0;
+            correctCount = 0;
+            totalAnswered = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const q = shuffledQuestions[currentQuestion];
+            
+            document.getElementById('adjective').textContent = q.adjective.toUpperCase();
+            document.getElementById('noun').textContent = q.noun.toUpperCase();
+            
+            document.getElementById('singularInput').value = '';
+            document.getElementById('dualInput').value = '';
+            document.getElementById('pluralInput').value = '';
+            
+            document.getElementById('singularInput').className = 'input-field';
+            document.getElementById('dualInput').className = 'input-field';
+            document.getElementById('pluralInput').className = 'input-field';
+            
+            document.getElementById('singularResult').innerHTML = '';
+            document.getElementById('dualResult').innerHTML = '';
+            document.getElementById('pluralResult').innerHTML = '';
+            
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('explanation').className = 'explanation';
+            
+            document.getElementById('checkBtn').style.display = 'block';
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            document.getElementById('singularInput').focus();
+            
+            updateProgress();
+        }
+
+        function checkAnswers() {
+            if (answered) return;
+            answered = true;
+            
+            const q = shuffledQuestions[currentQuestion];
+            
+            const singularValue = normalize(document.getElementById('singularInput').value);
+            const dualValue = normalize(document.getElementById('dualInput').value);
+            const pluralValue = normalize(document.getElementById('pluralInput').value);
+            
+            const singularCorrect = q.singular.some(ans => normalize(ans) === singularValue);
+            const dualCorrect = q.dual.some(ans => normalize(ans) === dualValue);
+            const pluralCorrect = q.plural.some(ans => normalize(ans) === pluralValue);
+            
+            const singularInput = document.getElementById('singularInput');
+            const dualInput = document.getElementById('dualInput');
+            const pluralInput = document.getElementById('pluralInput');
+            
+            if (singularCorrect) {
+                singularInput.classList.add('correct');
+                document.getElementById('singularResult').innerHTML = '<span style="color: #4caf50;">✓</span>';
+            } else {
+                singularInput.classList.add('incorrect');
+                document.getElementById('singularResult').innerHTML = '<span style="color: #f44336;">✗</span>';
+            }
+            
+            if (dualCorrect) {
+                dualInput.classList.add('correct');
+                document.getElementById('dualResult').innerHTML = '<span style="color: #4caf50;">✓</span>';
+            } else {
+                dualInput.classList.add('incorrect');
+                document.getElementById('dualResult').innerHTML = '<span style="color: #f44336;">✗</span>';
+            }
+            
+            if (pluralCorrect) {
+                pluralInput.classList.add('correct');
+                document.getElementById('pluralResult').innerHTML = '<span style="color: #4caf50;">✓</span>';
+            } else {
+                pluralInput.classList.add('incorrect');
+                document.getElementById('pluralResult').innerHTML = '<span style="color: #f44336;">✗</span>';
+            }
+            
+            totalAnswered++;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('show');
+            
+            if (singularCorrect && dualCorrect && pluralCorrect) {
+                correctCount++;
+                feedback.className = 'feedback show success';
+                feedback.innerHTML = '🎉 <strong>Odlično!</strong> Vse tri besedne zveze so popolnoma pravilne!';
+            } else if (singularCorrect || dualCorrect || pluralCorrect) {
+                const correctParts = [singularCorrect, dualCorrect, pluralCorrect].filter(x => x).length;
+                feedback.className = 'feedback show partial';
+                feedback.innerHTML = `⚠️ <strong>Delno pravilno</strong> (${correctParts}/3)`;
+                
+                let correctAnswers = '<div class="correct-answer"><strong>Pravilni odgovori:</strong><br>';
+                if (!singularCorrect) correctAnswers += `<strong>Ednina:</strong> ${q.singular.join(' ali ')}<br>`;
+                if (!dualCorrect) correctAnswers += `<strong>Dvojina:</strong> ${q.dual.join(' ali ')}<br>`;
+                if (!pluralCorrect) correctAnswers += `<strong>Množina:</strong> ${q.plural.join(' ali ')}<br>`;
+                correctAnswers += '</div>';
+                feedback.innerHTML += correctAnswers;
+            } else {
+                feedback.className = 'feedback show error';
+                feedback.innerHTML = `❌ <strong>Poskusi znova!</strong>`;
+                feedback.innerHTML += `<div class="correct-answer"><strong>Pravilni odgovori:</strong><br>
+                    <strong>Ednina:</strong> ${q.singular.join(' ali ')}<br>
+                    <strong>Dvojina:</strong> ${q.dual.join(' ali ')}<br>
+                    <strong>Množina:</strong> ${q.plural.join(' ali ')}</div>`;
+            }
+            
+            const explanation = document.getElementById('explanation');
+            explanation.classList.add('show');
+            explanation.innerHTML = `<strong>📝 Razlaga:</strong> ${q.explanation}`;
+            
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'block';
+            
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= shuffledQuestions.length) {
+                showFinalScore();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('total').textContent = totalAnswered;
+            const percentage = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+            document.getElementById('percentage').textContent = percentage;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / shuffledQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((correctCount / totalAnswered) * 100);
+            let message = '';
+            let emoji = '';
+            
+            if (percentage >= 90) {
+                message = 'Izjemno! Popolnoma obvladaš slovnico!';
+                emoji = '🌟';
+            } else if (percentage >= 70) {
+                message = 'Odlično! Zelo dobro ti gre!';
+                emoji = '👍';
+            } else if (percentage >= 50) {
+                message = 'Dobro! Še malo prakse!';
+                emoji = '💪';
+            } else {
+                message = 'Potrebuješ več vaje - ne obupaj!';
+                emoji = '📚';
+            }
+            
+            document.getElementById('questionCard').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">${emoji}</div>
+                    <h2>${message}</h2>
+                    <div style="font-size: 24px; margin: 30px 0;">
+                        ${correctCount} / ${totalAnswered} pravilnih vaj
+                    </div>
+                    <div style="font-size: 36px; font-weight: bold; color: #667eea;">
+                        ${percentage}%
+                    </div>
+                    <button class="next-btn" onclick="location.reload()" style="margin-top: 30px;">
+                        🔄 Začni znova
+                    </button>
+                </div>
+            `;
+        }
+
+        // Allow Enter key to check answers
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !answered) {
+                        checkAnswers();
+                    }
+                });
+            });
+        });
+
+        // Start the quiz
+        startQuiz();
+    </script>
+</body>
+</html>
