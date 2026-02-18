@@ -1,4 +1,92 @@
-<h1>interaktivne vaje</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Интерактивные упражнения</title>
 
-<a href="slovnica-vaja-1sklon.html">Vaje — 1 sklon</a><br>
-<a href="slovnica-vaja-1sklon.html">Vaje — 4 sklon</a>
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #dfe9f3, #ffffff);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    text-align: center;
+    background: rgba(255,255,255,0.95);
+    padding: 50px 60px;
+    border-radius: 25px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    max-width: 500px;
+}
+
+h1 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 32px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 17px;
+}
+
+.button {
+    display: block;
+    margin: 14px auto;
+    padding: 16px;
+    width: 280px;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+    color: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn1 { background: #4a90e2; }
+.btn2 { background: #7b5bd6; }
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.footer {
+    margin-top: 25px;
+    font-size: 14px;
+    color: #888;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>📘 Interaktivne vaje</h1>
+    <div class="subtitle">
+        Slovenščina • Vaje za sklone
+    </div>
+
+    <a class="button btn1" href="slovnica-vaja-1sklon.html">
+        ✏️ Vaje — 1 sklon
+    </a>
+
+    <a class="button btn2" href="slovnica-vaja-4sklon.html">
+        📗 Vaje — 4 sklon
+    </a>
+
+    <div class="footer">
+        Narejeno z ljubjeznjo ❤️ 
+    </div>
+
+</div>
+
+</body>
+</html>
