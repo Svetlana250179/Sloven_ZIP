@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaja: Predlogi v slovenščini</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #185a9d;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .score {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        .page-indicator {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #185a9d;
+            margin-bottom: 20px;
+        }
+        .question-card {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #185a9d;
+        }
+        .sentence-container {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .sentence-number {
+            font-weight: bold;
+            color: #185a9d;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .sentence-text {
+            font-size: 17px;
+            line-height: 2;
+            color: #333;
+        }
+        .blank-space {
+            display: inline-block;
+            min-width: 90px;
+            padding: 6px 12px;
+            border: 2px solid #185a9d;
+            background: white;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+        .blank-space:hover {
+            background: #e3f2fd;
+            transform: translateY(-1px);
+        }
+        select.blank-space {
+            cursor: pointer;
+            padding: 6px 10px;
+        }
+        .blank-space.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        .blank-space.incorrect {
+            background: #ffcdd2;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        .blank-space:disabled {
+            cursor: default;
+        }
+        .check-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #185a9d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        .check-btn:hover {
+            background: #0d4778;
+        }
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        .next-btn:hover {
+            background: #45a049;
+        }
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-size: 16px;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .feedback.partial {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        .feedback.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .progress {
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #185a9d;
+            transition: width 0.3s;
+        }
+        .correct-answer-display {
+            display: inline-block;
+            margin-left: 10px;
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Vaja: Predlogi v slovenščini</h1>
+        <div class="subtitle">Izberite pravilne predloge v stavkih</div>
+        
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="page-indicator" id="pageIndicator"></div>
+        
+        <div class="score">
+            Pravilni odgovori: <span id="correct">0</span> / <span id="total">0</span>
+            <span style="margin-left: 20px;">Uspešnost: <span id="percentage">0</span>%</span>
+        </div>
+        
+        <div class="question-card" id="questionCard">
+            <div id="sentencesContainer"></div>
+        </div>
+        
+        <button class="check-btn" id="checkBtn" onclick="checkAnswers()">✓ Preveri odgovore</button>
+        <button class="next-btn" id="nextBtn" onclick="nextPage()" style="display: none;">Naslednja stran →</button>
+        
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        const pages = [
+            // Stran 1
+            {
+                sentences: [
+                    {text: "Otroci grejo vsako jutro ___ šolo.", answer: "v", options: ["v", "na", "k"]},
+                    {text: "Letos gremo ___ morje ___ otok Krk.", answer: ["na", "na"], options: [["na", "v", "k"], ["na", "v", "do"]]},
+                    {text: "___ sredo imam pregled ___ zdravniku.", answer: ["V", "pri"], options: [["V", "Na", "Po"], ["pri", "k", "ob"]]},
+                    {text: "Moram iti ___ trgovino ___ mleko.", answer: ["v", "po"], options: [["v", "na", "k"], ["po", "za", "od"]]},
+                    {text: "Dvakrat ___ teden hodim ___ telovadnico.", answer: ["na", "v"], options: [["na", "v", "po"], ["v", "na", "k"]]},
+                    {text: "Vsako soboto grem ___ tržnico.", answer: "na", options: ["na", "v", "k"]}
+                ]
+            },
+            // Stran 2
+            {
+                sentences: [
+                    {text: "Pešci grejo ___ cesto ___ prehodu ___ pešce.", answer: ["čez", "na", "za"], options: [["čez", "po", "na"], ["na", "po", "pri"], ["za", "k", "pri"]]},
+                    {text: "Vidimo se ___ dva tedna.", answer: "čez", options: ["čez", "v", "za"]},
+                    {text: "Cesta ___ vas je ___ slabem stanju.", answer: ["skozi", "v"], options: [["skozi", "čez", "po"], ["v", "na", "pri"]]},
+                    {text: "___ banko je šla ___ denar.", answer: ["Na", "po"], options: [["Na", "V", "K"], ["po", "za", "od"]]},
+                    {text: "___ most smo zapeljali na desni breg.", answer: "Čez", options: ["Čez", "Po", "Na"]},
+                    {text: "Moja mama je naročena ___ časopis Delo.", answer: "na", options: ["na", "za", "v"]}
+                ]
+            },
+            // Stran 3
+            {
+                sentences: [
+                    {text: "Mojca je zaljubljena ___ Mirka.", answer: "v", options: ["v", "za", "pri"]},
+                    {text: "Poglej ___ okno! Danes je res lep dan.", answer: "skozi", options: ["skozi", "v", "na"]},
+                    {text: "___ družino gremo vsak vikend ___ kratek izlet.", answer: ["Z", "na"], options: [["Z", "S", "K"], ["na", "v", "po"]]},
+                    {text: "Vsak petek popoldne grem ___ kavo s prijatelji.", answer: "na", options: ["na", "v", "k"]},
+                    {text: "Ali imaš knjigo ___ nahrbtniku ali ___ torbi?", answer: ["v", "v"], options: [["v", "na", "pri"], ["v", "na", "za"]]},
+                    {text: "Peš gremo ___ hrib ___ smučišča.", answer: ["na", "do"], options: [["na", "v", "k"], ["do", "k", "v"]]}
+                ]
+            },
+            // Stran 4
+            {
+                sentences: [
+                    {text: "Peter gre ___ Hrvaško, ker ima tam prijatelje.", answer: "na", options: ["na", "v", "k"]},
+                    {text: "___ doma grem ___ Majo ___ šolo.", answer: ["Od", "z", "v"], options: [["Od", "Iz", "V"], ["z", "s", "k"], ["v", "na", "k"]]},
+                    {text: "Pridi ___ Trsta ___ meni.", answer: ["iz", "k"], options: [["iz", "od", "z"], ["k", "pri", "do"]]},
+                    {text: "Ali radi greste ___ Italijo ___ nakupovanje?", answer: ["v", "na"], options: [["v", "na", "k"], ["na", "v", "po"]]},
+                    {text: "Jutri odpotujeva ___ Ljubljano.", answer: "v", options: ["v", "na", "k"]},
+                    {text: "Avto je zavil ___ cesto ___ Črnuče.", answer: ["na", "v"], options: [["na", "po", "čez"], ["v", "na", "k"]]}
+                ]
+            },
+            // Stran 5
+            {
+                sentences: [
+                    {text: "Gremo ___ kino ___ soboto zvečer.", answer: ["v", "v"], options: [["v", "na", "k"], ["v", "na", "ob"]]},
+                    {text: "Mama gre ___ trgovino ___ kruh in mleko.", answer: ["v", "po"], options: [["v", "na", "k"], ["po", "za", "na"]]},
+                    {text: "Učenci hodijo ___ šolo ___ ponedeljka ___ petka.", answer: ["v", "od", "do"], options: [["v", "na", "k"], ["od", "iz", "z"], ["do", "k", "v"]]},
+                    {text: "___ šole grem ___ babici ___ kosilo.", answer: ["Iz", "k", "na"], options: [["Iz", "Od", "Po"], ["k", "pri", "do"], ["na", "v", "za"]]},
+                    {text: "Avto je parkiran ___ hiši ___ ulici.", answer: ["pri", "na"], options: [["pri", "ob", "k"], ["na", "v", "ob"]]},
+                    {text: "Sprehajamo se ___ parku ___ psičko.", answer: ["po", "s"], options: [["po", "v", "skozi"], ["s", "z", "k"]]}
+                ]
+            },
+            // Stran 6
+            {
+                sentences: [
+                    {text: "___ počitnicah gremo ___ morje ___ Hrvaško.", answer: ["Na", "na", "na"], options: [["Na", "V", "Med"], ["na", "v", "k"], ["na", "v", "k"]]},
+                    {text: "Knjiga leži ___ mizi ___ učilnici.", answer: ["na", "v"], options: [["na", "pri", "ob"], ["v", "na", "pri"]]},
+                    {text: "Letalo leti ___ oblaki ___ goro.", answer: ["med", "čez"], options: [["med", "skozi", "po"], ["čez", "po", "na"]]},
+                    {text: "Vlak pelje ___ predor ___ naslednje postaje.", answer: ["skozi", "do"], options: [["skozi", "v", "čez"], ["do", "k", "v"]]},
+                    {text: "Otroci se igrajo ___ dvorišču ___ prijatelji.", answer: ["na", "s"], options: [["na", "v", "po"], ["s", "z", "k"]]},
+                    {text: "Pismo je prispelo ___ Amerike ___ mojo sestro.", answer: ["iz", "za"], options: [["iz", "od", "z"], ["za", "k", "pri"]]}
+                ]
+            },
+            // Stran 7
+            {
+                sentences: [
+                    {text: "Jutri odpotujeva ___ tri tedne, vrneva se ___ božič.", answer: ["za", "za"], options: [["za", "v", "na"], ["za", "ob", "na"]]},
+                    {text: "Pošiljam vam pismo ___ 26. julija.", answer: "od", options: ["od", "iz", "z"]},
+                    {text: "Pošiljajo ga ___ Majo ___ Trst.", answer: ["z", "v"], options: [["z", "s", "k"], ["v", "na", "k"]]},
+                    {text: "Prinesem ti fotografijo ___ Italije ___ morja.", answer: ["iz", "z"], options: [["iz", "od", "s"], ["z", "od", "pri"]]},
+                    {text: "Hočem iti še enkrat ___ Ljubljano.", answer: "v", options: ["v", "na", "k"]},
+                    {text: "___ košarko grem ___ telovadnico.", answer: ["Na", "v"], options: [["Na", "V", "K"], ["v", "na", "k"]]}
+                ]
+            },
+            // Stran 8
+            {
+                sentences: [
+                    {text: "Stopimo ___ vlak ___ postaji.", answer: ["na", "na"], options: [["na", "v", "k"], ["na", "v", "ob"]]},
+                    {text: "Hodim ___ bolnico ___ zdravniku.", answer: ["v", "k"], options: [["v", "na", "pri"], ["k", "pri", "do"]]},
+                    {text: "Sedim ___ kavču ___ dnevni sobi.", answer: ["na", "v"], options: [["na", "ob", "pri"], ["v", "na", "pri"]]},
+                    {text: "Gledam ___ okno ___ ulico.", answer: ["skozi", "na"], options: [["skozi", "v", "čez"], ["na", "v", "po"]]},
+                    {text: "Vozim se ___ kolesom ___ delo.", answer: ["s", "na"], options: [["s", "z", "na"], ["na", "v", "k"]]},
+                    {text: "Pijem kavo ___ mlekom ___ sladkorja.", answer: ["z", "brez"], options: [["z", "s", "pri"], ["brez", "z", "s"]]}
+                ]
+            }
+        ];
+
+        let currentPage = 0;
+        let correctCount = 0;
+        let totalAnswered = 0;
+        let answered = false;
+
+        function loadPage() {
+            answered = false;
+            const page = pages[currentPage];
+            
+            // Update page indicator
+            document.getElementById('pageIndicator').textContent = `Stran ${currentPage + 1} / ${pages.length}`;
+            
+            // Display sentences
+            const container = document.getElementById('sentencesContainer');
+            container.innerHTML = '';
+            
+            page.sentences.forEach((sentence, idx) => {
+                const sentenceDiv = document.createElement('div');
+                sentenceDiv.className = 'sentence-container';
+                
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'sentence-number';
+                numberDiv.textContent = `${idx + 1}.`;
+                sentenceDiv.appendChild(numberDiv);
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'sentence-text';
+                
+                // Split sentence by underscores and create dropdowns
+                const parts = sentence.text.split('___');
+                let html = '';
+                const answers = Array.isArray(sentence.answer) ? sentence.answer : [sentence.answer];
+                const allOptions = Array.isArray(sentence.options[0]) ? sentence.options : [sentence.options];
+                let blankCounter = 0;
+                
+                parts.forEach((part, partIdx) => {
+                    html += part;
+                    if (partIdx < parts.length - 1) {
+                        const options = allOptions[blankCounter];
+                        html += `<select class="blank-space" data-sentence="${idx}" data-blank="${blankCounter}">
+                            <option value="">---</option>`;
+                        options.forEach(opt => {
+                            html += `<option value="${opt}">${opt}</option>`;
+                        });
+                        html += `</select>`;
+                        blankCounter++;
+                    }
+                });
+                
+                textDiv.innerHTML = html;
+                sentenceDiv.appendChild(textDiv);
+                container.appendChild(sentenceDiv);
+            });
+            
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('checkBtn').style.display = 'block';
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            updateProgress();
+        }
+
+        function checkAnswers() {
+            if (answered) return;
+            answered = true;
+            
+            const page = pages[currentPage];
+            const selects = document.querySelectorAll('.blank-space');
+            let correct = 0;
+            let total = 0;
+            
+            page.sentences.forEach((sentence, sentenceIdx) => {
+                const answers = Array.isArray(sentence.answer) ? sentence.answer : [sentence.answer];
+                const sentenceSelects = Array.from(selects).filter(s => 
+                    parseInt(s.dataset.sentence) === sentenceIdx
+                );
+                
+                sentenceSelects.forEach((select, blankIdx) => {
+                    total++;
+                    const userAnswer = select.value.trim();
+                    const correctAnswer = answers[blankIdx].trim();
+                    
+                    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                        select.classList.add('correct');
+                        correct++;
+                    } else {
+                        select.classList.add('incorrect');
+                        // Show correct answer next to the select
+                        const span = document.createElement('span');
+                        span.className = 'correct-answer-display';
+                        span.textContent = `✓ ${correctAnswer}`;
+                        select.parentNode.insertBefore(span, select.nextSibling);
+                    }
+                    select.disabled = true;
+                });
+            });
+            
+            totalAnswered++;
+            if (correct === total) {
+                correctCount++;
+            }
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('show');
+            
+            const percentage = Math.round((correct / total) * 100);
+            
+            if (correct === total) {
+                feedback.className = 'feedback show success';
+                feedback.innerHTML = `🎉 <strong>Odlično!</strong> Vsi predlogi so pravilni! (${correct}/${total})`;
+            } else if (correct >= total * 0.7) {
+                feedback.className = 'feedback show partial';
+                feedback.innerHTML = `👍 <strong>Dobro!</strong> Pravilnih: ${correct}/${total} (${percentage}%)`;
+            } else {
+                feedback.className = 'feedback show error';
+                feedback.innerHTML = `❌ <strong>Poskusi znova!</strong> Pravilnih: ${correct}/${total} (${percentage}%)`;
+            }
+            
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'block';
+            
+            if (currentPage === pages.length - 1) {
+                document.getElementById('nextBtn').textContent = '✓ Končaj vajo';
+            }
+            
+            updateScore();
+        }
+
+        function nextPage() {
+            currentPage++;
+            if (currentPage >= pages.length) {
+                showFinalScore();
+            } else {
+                loadPage();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('total').textContent = totalAnswered;
+            const percentage = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+            document.getElementById('percentage').textContent = percentage;
+        }
+
+        function updateProgress() {
+            const progress = ((currentPage + 1) / pages.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((correctCount / totalAnswered) * 100);
+            let message = '';
+            let emoji = '';
+            
+            if (percentage >= 90) {
+                message = 'Izjemno! Mojster predlogov!';
+                emoji = '🌟';
+            } else if (percentage >= 70) {
+                message = 'Odlično! Zelo dobro poznaš predloge!';
+                emoji = '👍';
+            } else if (percentage >= 50) {
+                message = 'Dobro! Še malo vaje!';
+                emoji = '💪';
+            } else {
+                message = 'Potrebuješ več vaje - ne obupaj!';
+                emoji = '📚';
+            }
+            
+            document.getElementById('questionCard').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">${emoji}</div>
+                    <h2>${message}</h2>
+                    <div style="font-size: 24px; margin: 30px 0;">
+                        ${correctCount} / ${totalAnswered} strani popolnoma pravilnih
+                    </div>
+                    <div style="font-size: 36px; font-weight: bold; color: #185a9d;">
+                        ${percentage}%
+                    </div>
+                    <button class="next-btn" onclick="location.reload()" style="margin-top: 30px;">
+                        🔄 Začni znova
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('pageIndicator').textContent = 'Vaja končana!';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        // Start the exercise
+        loadPage();
+    </script>
+</body>
+</html>
