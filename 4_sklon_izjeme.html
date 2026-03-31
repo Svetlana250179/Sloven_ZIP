@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4. sklon — besedne izjeme</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0f1117;
+  --surface:   #181c26;
+  --surface2:  #1e2332;
+  --border:    #2d3448;
+  --border2:   #3a4260;
+  --ink:       #e8e4d8;
+  --ink2:      #9a96a8;
+  --ink3:      #5e5a70;
+  --gold:      #d4a030;
+  --gold2:     #f0c050;
+  --ok:        #3a8c5c;
+  --ok-bg:     #0d2018;
+  --ok-bd:     #2a6040;
+  --ok-tx:     #70d0a0;
+  --err:       #c04040;
+  --err-bg:    #200a0a;
+  --err-bd:    #7a2020;
+  --err-tx:    #e88080;
+  --try-bg:    #1a1608;
+  --try-bd:    #6a5010;
+  --try-tx:    #d4a030;
+
+  /* word type colours */
+  --m-zivo-bg: #0e1828; --m-zivo-bd: #3060b0; --m-zivo-tx: #80b0f0;
+  --z-bg:      #1e0e18; --z-bd:      #a04070; --z-tx:      #e090c0;
+  --sr-bg:     #121408; --sr-bd:     #7a7020; --sr-tx:     #d4c860;
+  --mn-bg:     #0e1818; --mn-bd:     #306060; --mn-tx:     #70c0c0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Lora',Georgia,serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  padding:36px 16px 64px;
+  background-image:
+    radial-gradient(ellipse at 10% 10%,rgba(212,160,48,.06) 0%,transparent 55%),
+    radial-gradient(ellipse at 90% 90%,rgba(80,60,160,.07) 0%,transparent 55%);
+}
+.wrap{max-width:680px;margin:0 auto;}
+
+/* HEADER */
+header{text-align:center;margin-bottom:36px;}
+.pretitle{
+  font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;
+}
+h1{
+  font-family:'DM Serif Display',serif;font-size:2.4rem;
+  color:var(--ink);line-height:1.1;
+  background:linear-gradient(135deg,#f0d880,#d4a030,#f0d880);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.subtitle{
+  margin-top:8px;font-size:.88rem;color:var(--ink2);
+  font-style:italic;
+}
+.divider{
+  display:flex;align-items:center;gap:14px;margin:18px 0 0;
+  color:var(--ink3);font-size:.7rem;letter-spacing:.2em;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:24px;}
+.prog-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.8rem;margin-bottom:9px;
+}
+.score-ok {color:#70d0a0;font-weight:700;font-family:'DM Serif Display',serif;}
+.score-err{color:#e88080;font-weight:700;font-family:'DM Serif Display',serif;}
+.prog-num {color:var(--ink3);font-size:.75rem;}
+.prog-track{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:3px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* CARD */
+.card{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:32px 34px;
+  margin-bottom:22px;
+  box-shadow:0 8px 40px rgba(0,0,0,.45);
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(212,160,48,.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* WORD TAG */
+.word-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1.5px solid var(--border2);
+  border-radius:30px;padding:5px 16px;
+  font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold2);font-weight:600;
+  margin-bottom:16px;
+}
+.word-tag .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--gold);display:inline-block;
+}
+
+/* META BADGES */
+.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.badge{
+  display:inline-block;border-radius:6px;
+  padding:3px 12px;font-size:.72rem;font-weight:600;
+  border:1.5px solid;letter-spacing:.03em;
+  font-family:'Lora',serif;
+}
+.b-sklon{background:#1a0e28;border-color:#7030c0;color:#c090f0;}
+.m-zivo {background:var(--m-zivo-bg);border-color:var(--m-zivo-bd);color:var(--m-zivo-tx);}
+.z      {background:var(--z-bg);     border-color:var(--z-bd);     color:var(--z-tx);}
+.sr     {background:var(--sr-bg);    border-color:var(--sr-bd);    color:var(--sr-tx);}
+.mn     {background:var(--mn-bg);    border-color:var(--mn-bd);    color:var(--mn-tx);}
+
+/* QUESTION LABEL */
+.q-label{
+  font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.q-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* SENTENCE */
+.sentence{
+  font-family:'DM Serif Display',serif;font-size:1.55rem;
+  color:var(--ink);line-height:1.85;margin-bottom:20px;
+  min-height:64px;
+}
+.blank{
+  display:inline-block;min-width:170px;
+  border-bottom:2px solid var(--gold);
+  color:var(--gold2);font-style:italic;
+  padding:0 10px 3px;vertical-align:middle;
+  font-size:1.25rem;text-align:center;
+}
+.filled-ans{
+  color:#80d4a0;font-style:italic;
+  border-bottom:1.5px solid #3a8c5c;
+  padding:0 5px 2px;
+}
+
+/* BASE CHIPS */
+.bases-row{margin-bottom:22px;font-size:.82rem;color:var(--ink2);}
+.chip{
+  display:inline-block;
+  background:#1a1c10;border:1.5px dashed var(--gold);
+  border-radius:6px;padding:3px 13px;
+  margin:3px 4px;color:var(--gold2);
+  font-family:'Lora',serif;font-size:.88rem;
+  font-style:italic;
+}
+
+/* INPUT */
+.inp-label{font-size:.72rem;color:var(--ink3);margin-bottom:8px;letter-spacing:.05em;}
+.ainput{
+  width:100%;
+  font-size:1.05rem;font-family:'Lora',Georgia,serif;
+  padding:14px 20px;
+  background:#10121a;
+  border:2px solid var(--border2);
+  border-radius:12px;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+  margin-bottom:16px;
+}
+.ainput::placeholder{color:var(--ink3);}
+.ainput:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,160,48,.15);}
+.ainput.ok {border-color:#3a8c5c;background:#0a1812;}
+.ainput.err{border-color:#8c3a3a;background:#18080a;}
+.ainput:disabled{opacity:.65;cursor:not-allowed;}
+
+/* FEEDBACK */
+.feedback{
+  display:none;border-radius:12px;
+  padding:14px 18px;margin-bottom:16px;
+  font-size:.88rem;line-height:1.65;
+  animation:fadeUp .22s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:none;}}
+.feedback.show{display:block;}
+.fb-ok {background:var(--ok-bg); border:1.5px solid var(--ok-bd); color:var(--ok-tx);}
+.fb-try{background:var(--try-bg);border:1.5px solid var(--try-bd);color:var(--try-tx);}
+.fb-err{background:var(--err-bg);border:1.5px solid var(--err-bd);color:var(--err-tx);}
+.fb-ans{font-family:'DM Serif Display',serif;font-size:1.05rem;}
+.fb-rule{
+  margin-top:9px;padding-top:9px;
+  border-top:1px solid rgba(255,255,255,.07);
+  font-size:.77rem;color:var(--ink2);font-style:italic;
+}
+.fb-exc{
+  margin-top:6px;font-size:.74rem;
+  color:var(--gold2);font-weight:600;
+}
+
+/* HINT */
+.hint-wrap{margin-bottom:18px;}
+.btn-hint{
+  background:none;border:1.5px solid var(--border2);border-radius:8px;
+  padding:7px 16px;font-size:.76rem;color:var(--ink2);
+  cursor:pointer;font-family:'Lora',serif;
+  transition:all .2s;
+}
+.btn-hint:hover{border-color:var(--gold);color:var(--gold);}
+.hint-body{
+  display:none;margin-top:10px;
+  font-size:.8rem;color:var(--ink2);font-style:italic;
+  background:#141820;
+  border-left:3px solid var(--gold);
+  padding:11px 15px;border-radius:0 9px 9px 0;
+  line-height:1.7;
+  white-space:pre-line;
+}
+.hint-body.show{display:block;}
+
+/* BUTTONS */
+.btn-row{display:flex;justify-content:flex-end;}
+.btn-main{
+  background:linear-gradient(135deg,#b87010,var(--gold));
+  color:#0f0a00;border:none;border-radius:12px;
+  padding:13px 34px;font-size:.95rem;font-weight:700;
+  font-family:'DM Serif Display',serif;letter-spacing:.03em;
+  cursor:pointer;transition:opacity .2s,transform .1s;
+  box-shadow:0 4px 20px rgba(212,160,48,.25);
+}
+.btn-main:hover {opacity:.88;}
+.btn-main:active{transform:scale(.97);}
+.btn-main:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+
+/* EXCEPTION BOX */
+.exc-map{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:16px;padding:22px 26px;
+  margin-bottom:22px;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+}
+.exc-title{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;font-weight:600;
+}
+.exc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+.exc-item{
+  background:var(--surface2);border-radius:10px;
+  padding:10px 14px;border-left:3px solid;
+  font-size:.78rem;line-height:1.55;
+}
+.exc-item.m-zivo{border-color:var(--m-zivo-bd);}
+.exc-item.z     {border-color:var(--z-bd);}
+.exc-item.sr    {border-color:var(--sr-bd);}
+.exc-item.mn    {border-color:var(--mn-bd);}
+.exc-noun{font-family:'DM Serif Display',serif;font-size:.95rem;color:var(--ink);display:block;}
+.exc-forms{color:var(--ink2);font-size:.74rem;font-family:monospace;}
+.exc-note {color:var(--gold2);font-size:.7rem;display:block;margin-top:3px;font-style:italic;}
+
+/* DONE */
+.done-wrap{display:none;}
+.done-wrap.show{display:block;}
+.done-card{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:20px;padding:48px 32px;
+  text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.45);
+  margin-bottom:22px;
+}
+.done-title{
+  font-family:'DM Serif Display',serif;font-size:1.6rem;
+  background:linear-gradient(135deg,#f0d880,#d4a030);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:20px;
+}
+.done-big{
+  font-family:'DM Serif Display',serif;font-size:5rem;
+  color:var(--gold);line-height:1;
+}
+.done-of{font-size:1rem;color:var(--ink3);margin-top:6px;}
+.done-msg{font-size:1rem;color:var(--ink2);margin:18px 0 26px;font-style:italic;}
+.done-track{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:32px;}
+.done-fill{height:100%;border-radius:5px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* ANIM */
+.card{animation:cardIn .3s cubic-bezier(.4,0,.2,1);}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+@media(max-width:500px){
+  .card{padding:20px 18px;}
+  .sentence{font-size:1.25rem;}
+  h1{font-size:1.85rem;}
+  .exc-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="pretitle">Slovenska slovnica &mdash; interaktivna vaja</div>
+  <h1>4. sklon</h1>
+  <p class="subtitle">Pridevnik + samostalnik &mdash; izjeme in posebni primeri</p>
+  <div class="divider">Vprasanje: KOGA? KAJ?</div>
+</header>
+
+<!-- Exception reference map -->
+<div class="exc-map">
+  <div class="exc-title">Besede v vajah &mdash; pregled izjem</div>
+  <div class="exc-grid">
+    <div class="exc-item m-zivo">
+      <span class="exc-noun">otrok</span>
+      <span class="exc-forms">1.sk: otrok &rarr; 4.sk: otroka</span>
+      <span class="exc-note">mn. otroci (ne: otroki)</span>
+    </div>
+    <div class="exc-item m-zivo">
+      <span class="exc-noun">sin</span>
+      <span class="exc-forms">1.sk: sin &rarr; 4.sk: sina</span>
+      <span class="exc-note">pridevnik: -i &rarr; -ega</span>
+    </div>
+    <div class="exc-item m-zivo">
+      <span class="exc-noun">clovek</span>
+      <span class="exc-forms">1.sk: clovek &rarr; 4.sk: cloveka</span>
+      <span class="exc-note">mn. LJUDJE (ne: cloveki)</span>
+    </div>
+    <div class="exc-item sr">
+      <span class="exc-noun">drevo</span>
+      <span class="exc-forms">4.sk = 1.sk: drevo</span>
+      <span class="exc-note">mn. drevesa (ne: dreva)</span>
+    </div>
+    <div class="exc-item sr">
+      <span class="exc-noun">uho</span>
+      <span class="exc-forms">4.sk = 1.sk: uho</span>
+      <span class="exc-note">mn. usesa (ne: uha)</span>
+    </div>
+    <div class="exc-item sr">
+      <span class="exc-noun">ime</span>
+      <span class="exc-forms">4.sk = 1.sk: ime</span>
+      <span class="exc-note">rod. imena &mdash; osnova -n!</span>
+    </div>
+    <div class="exc-item sr">
+      <span class="exc-noun">jabolko</span>
+      <span class="exc-forms">4.sk = 1.sk: jabolko</span>
+      <span class="exc-note">srednji spol: brez spr.</span>
+    </div>
+    <div class="exc-item mn">
+      <span class="exc-noun">ocala</span>
+      <span class="exc-forms">4.sk = 1.sk: ocala</span>
+      <span class="exc-note">plurale tantum, vedno mn.</span>
+    </div>
+    <div class="exc-item mn">
+      <span class="exc-noun">lase (mn.)</span>
+      <span class="exc-forms">1.sk: lasje &rarr; 4.sk: lase</span>
+      <span class="exc-note">sprememba v mn.: -je &rarr; -e</span>
+    </div>
+    <div class="exc-item z">
+      <span class="exc-noun">luc</span>
+      <span class="exc-forms">4.sk = 1.sk: luc</span>
+      <span class="exc-note">zen. na soglasnik: sam. brez spr.; prid. -o</span>
+    </div>
+    <div class="exc-item m-zivo">
+      <span class="exc-noun">dan</span>
+      <span class="exc-forms">4.sk = 1.sk: dan</span>
+      <span class="exc-note">mozki NEZIVO &rarr; brez spr.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main exercise section -->
+<div id="mainSection">
+  <div class="prog-wrap">
+    <div class="prog-meta">
+      <div>
+        <span class="score-ok"  id="scOk">0 pravilno</span>&ensp;
+        <span class="score-err" id="scErr">0 napak</span>
+      </div>
+      <span class="prog-num" id="progLbl">1 / 24</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card" id="exCard">
+    <div class="word-tag"><span class="dot"></span><span id="wordTag"></span></div>
+    <div class="meta-row">
+      <span class="badge b-sklon">4. sklon &mdash; KOGA? KAJ?</span>
+      <span class="badge" id="genBadge"></span>
+    </div>
+    <div class="q-label">Dopolnite s pridevnikom in samostalnikom v 4. sklonu</div>
+    <div class="sentence" id="sentWrap"></div>
+    <div class="bases-row" id="basesWrap"></div>
+    <div class="inp-label">Vpišite: pridevnik + samostalnik</div>
+    <input type="text" class="ainput" id="ainput" placeholder="vaš odgovor …" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb"></div>
+    <div class="hint-wrap">
+      <button class="btn-hint" id="btnHint">Prikaži namig</button>
+      <div class="hint-body" id="hintBody"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-main" id="btnAct">Preveri</button>
+    </div>
+  </div>
+</div>
+
+<!-- Done screen -->
+<div class="done-wrap" id="doneSection">
+  <div class="done-card">
+    <div class="done-title">Vaja zakljucena!</div>
+    <div class="done-big"  id="doneScore"></div>
+    <div class="done-of"   id="doneOf"></div>
+    <div class="done-msg"  id="doneMsg"></div>
+    <div class="done-track"><div class="done-fill" id="doneFill"></div></div>
+    <button class="btn-main" onclick="restart()">Ponovi vajo</button>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ==================================================================
+   EXERCISE DATA
+   Each entry: sentence with {b} = blank (pridevnik + samostalnik)
+   bases  : nominative reference forms shown as chips
+   ans    : canonical answer
+   alt    : diacritics-free / spelling alternates accepted
+   gc     : CSS class for gender badge
+   gender : display text
+   rule   : grammar rule
+   exc    : exception note (shown gold)
+================================================================== */
+const EX = [
+
+  /* ── OTROK (m, zivo) ─────────────────────────── */
+  { word:"otrok", sklon:4, tpl:"Na igrišcu vidim {b}.",
+    bases:["mali","otrok"], ans:"malega otroka",
+    alt:["malega otroka"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"Moški spol, živo: pridevnik 1.sk (-i) → 4.sk (-ega); samostalnik + -a.",
+    exc:"IZJEMA: 4. sklon živo = obligatorna sprememba!\nmali → malega / otrok → otroka\nMn. otroci (ne: otroki!)" },
+
+  { word:"otrok", sklon:4, tpl:"Uciteljica pohvali {b}.",
+    bases:["priden","otrok"], ans:"pridnega otroka",
+    alt:["pridnega otroka"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"Pridevnik priden → pridnega (4.sk, m, živo); otrok → otroka.",
+    exc:"Živo: vedno -ega / -a!" },
+
+  /* ── SIN (m, zivo) ────────────────────────────── */
+  { word:"sin", sklon:4, tpl:"Mama objame {b}.",
+    bases:["najstarejši","sin"], ans:"najstarejšega sina",
+    alt:["najstarejsega sina"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"Moški, živo: pridevnik najstarejši → najstarejšega; sin → sina.",
+    exc:"Živo = sprememba: -i → -ega, osnova → -a." },
+
+  { word:"sin", sklon:4, tpl:"Oceta skrbi {b}.",
+    bases:["edini","sin"], ans:"edinega sina",
+    alt:["edinega sina"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"edini → edinega (4.sk, m, živo); sin → sina.",
+    exc:"" },
+
+  /* ── CLOVEK (m, zivo) ────────────────────────── */
+  { word:"clovek", sklon:4, tpl:"Srecan sem, ko pomagam {b}.",
+    bases:["star","clovek"], ans:"staremu človeku",
+    alt:["staremu cloveku"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"POZOR: 'pomagati' zahteva 3. sklon (KOMU?), ne 4. Preizkusna naloga!",
+    exc:"clovek → množina LJUDJE (ne: cloveki). Tu je 3. sklon (dajalni), ne 4.sk!" },
+
+  { word:"clovek", sklon:4, tpl:"V parku vidim {b}.",
+    bases:["star","clovek"], ans:"starega človeka",
+    alt:["starega cloveka"],
+    gender:"moški (živo)", gc:"m-zivo",
+    rule:"Moški, živo: star → starega; clovek → cloveka.",
+    exc:"Množina: LJUDJE (ne: cloveki!)" },
+
+  /* ── DREVO (sr) ───────────────────────────────── */
+  { word:"drevo", sklon:4, tpl:"Otrok objame {b}.",
+    bases:["debelo","drevo"], ans:"debelo drevo",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji spol: 4. sklon = 1. sklon. Brez spremembe.",
+    exc:"IZJEMA: mn. drevesa (ne: dreva!)" },
+
+  { word:"drevo", sklon:4, tpl:"Zasadimo {b} v vrtu.",
+    bases:["mlado","drevo"], ans:"mlado drevo",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji: 4.sk = 1.sk. mlado drevo → mlado drevo.",
+    exc:"Srednji: 1.sk = 4.sk — brez spremembe!" },
+
+  /* ── DAN (m, nezivo) ──────────────────────────── */
+  { word:"dan", sklon:4, tpl:"Preživela sem {b}.",
+    bases:["lep","dan"], ans:"lep dan",
+    alt:[],
+    gender:"moški (neživo)", gc:"m-zivo",
+    rule:"Moški NEŽIVO: 4. sklon = 1. sklon. Pridevnik in samostalnik brez spremembe.",
+    exc:"dan = neživo → 4.sk = 1.sk!\nlep dan (1.sk) = lep dan (4.sk)" },
+
+  { word:"dan", sklon:4, tpl:"Cakamo {b}.",
+    bases:["soncen","dan"], ans:"soncen dan",
+    alt:["sončen dan"],
+    gender:"moški (neživo)", gc:"m-zivo",
+    rule:"Moški NEŽIVO: 4.sk = 1.sk. soncen dan ostane soncen dan.",
+    exc:"NEŽIVO: brez spremembe, ne glede na spol!" },
+
+  /* ── OCALA (sr, plurale tantum) ──────────────── */
+  { word:"ocala", sklon:4, tpl:"Potrebujem {b}.",
+    bases:["nova","ocala"], ans:"nova ocala",
+    alt:["nova očala"],
+    gender:"srednji (mn.)", gc:"mn",
+    rule:"ocala = plurale tantum (vedno množina), srednji spol. 4.sk mn. = 1.sk mn.",
+    exc:"ocala nimajo edninske oblike!\n1.sk = 4.sk: nova ocala → nova ocala" },
+
+  { word:"ocala", sklon:4, tpl:"Izgubila sem {b}.",
+    bases:["soncna","ocala"], ans:"soncna ocala",
+    alt:["sončna očala"],
+    gender:"srednji (mn.)", gc:"mn",
+    rule:"4.sk mn., srednji: pridevnik mn. -a, samostalnik = ocala (brez spr.).",
+    exc:"Plurale tantum: vedno množina. soncna ocala = 1.sk = 4.sk" },
+
+  /* ── UHO (sr) ─────────────────────────────────── */
+  { word:"uho", sklon:4, tpl:"Zdravnik pregleda {b}.",
+    bases:["desno","uho"], ans:"desno uho",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji spol: 4.sk = 1.sk. desno uho ostane desno uho.",
+    exc:"IZJEMA: mn. ušesa (ne: uha!)" },
+
+  { word:"uho", sklon:4, tpl:"Bolí me {b}.",
+    bases:["levo","uho"], ans:"levo uho",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji: 4.sk = 1.sk. Brez spremembe.",
+    exc:"uho: 1.sk = 4.sk\nMn. ušesa — nepravilna oblika!" },
+
+  /* ── IME (sr) ─────────────────────────────────── */
+  { word:"ime", sklon:4, tpl:"Otrok dobi {b}.",
+    bases:["lepo","ime"], ans:"lepo ime",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji spol: 4.sk = 1.sk. lepo ime → lepo ime.",
+    exc:"ime = srednji spol, osnova na -n\nrod. IMENA (ne: imeja!)\n1.sk = 4.sk" },
+
+  { word:"ime", sklon:4, tpl:"Pozabila sem {b}.",
+    bases:["tuje","ime"], ans:"tuje ime",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji: 4.sk = 1.sk. tuje ime ostane brez spremembe.",
+    exc:"rod. tujega IMENA — osnova -n je skrita!" },
+
+  /* ── LASE (m, mn.) ────────────────────────────── */
+  { word:"lase", sklon:4, tpl:"Ona ima {b}.",
+    bases:["dolge (mn.)","lase"], ans:"dolge lase",
+    alt:[],
+    gender:"moški (mn., neživo)", gc:"mn",
+    rule:"lasje (1.sk mn.) → lase (4.sk mn.). Pridevnik mn., m, neživo: dolgi → dolge.",
+    exc:"IZJEMA: lasje (1.sk) → lase (4.sk) — edina mn. oblika z -e!\nlas (ed.) → lasje (1.mn.) → lase (4.mn.)" },
+
+  { word:"lase", sklon:4, tpl:"Punca si pocesi {b}.",
+    bases:["crne (mn.)","lase"], ans:"crne lase",
+    alt:["črne lase"],
+    gender:"moški (mn., neživo)", gc:"mn",
+    rule:"4.sk mn., moški: pridevnik crni (1.sk) → crne (4.sk); lasje → lase.",
+    exc:"lasje → lase: sprememba samo v mn. 4. sklonu!" },
+
+  /* ── JABOLKO (sr) ─────────────────────────────── */
+  { word:"jabolko", sklon:4, tpl:"Vzamem {b} iz košare.",
+    bases:["rdece","jabolko"], ans:"rdece jabolko",
+    alt:["rdeče jabolko"],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji: 4.sk = 1.sk. rdece jabolko ostane brez spremembe.",
+    exc:"Srednji spol: 1.sk = 4.sk (vedno!)" },
+
+  { word:"jabolko", sklon:4, tpl:"Otrok pojé {b}.",
+    bases:["zeleno","jabolko"], ans:"zeleno jabolko",
+    alt:[],
+    gender:"srednji spol", gc:"sr",
+    rule:"Srednji: 4.sk = 1.sk. zeleno jabolko → zeleno jabolko.",
+    exc:"" },
+
+  /* ── LUC (z, soglasnik) ───────────────────────── */
+  { word:"luc", sklon:4, tpl:"Prižgem {b}.",
+    bases:["svetla","luc"], ans:"svetlo luc",
+    alt:["svetlo luč"],
+    gender:"ženski spol", gc:"z",
+    rule:"Ženski spol na soglasnik: pridevnik 1.sk (-a) → 4.sk (-o); samostalnik BEZ spremembe!",
+    exc:"luc = zenski na soglasnik\nsvetla luc (1.sk) → svetlo luc (4.sk)\nSamostanik ostane: luc = luc!" },
+
+  { word:"luc", sklon:4, tpl:"Vidim {b} v oknu.",
+    bases:["rdeca","luc"], ans:"rdeco luc",
+    alt:["rdeco luč"],
+    gender:"ženski spol", gc:"z",
+    rule:"Ženski soglasnik: pridevnik rdeca → rdeco (4.sk); luc → luc (brez spremembe).",
+    exc:"Pridevnik dobi -o, samostalnik ostane enak!" },
+
+  { word:"luc", sklon:4, tpl:"Ugasnem {b} pred spanjem.",
+    bases:["mala","luc"], ans:"malo luc",
+    alt:["malo luč"],
+    gender:"ženski spol", gc:"z",
+    rule:"Ženski soglasnik: mala → malo (4.sk); luc ostane luc.",
+    exc:"Zenska na soglasnik: SAMO pridevnik se spremeni!" },
+];
+
+/* ================================================================
+   UTILITIES
+================================================================ */
+function shuffle(a){
+  const r=[...a];
+  for(let i=r.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [r[i],r[j]]=[r[j],r[i]];
+  }
+  return r;
+}
+function norm(s){
+  return s.trim().toLowerCase()
+    .replace(/č/g,'c').replace(/š/g,'s').replace(/ž/g,'z')
+    .replace(/\s+/g,' ');
+}
+function matches(input,ex){
+  const n=norm(input);
+  if(n===norm(ex.ans)) return true;
+  return (ex.alt||[]).some(a=>n===norm(a));
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+/* ================================================================
+   STATE
+================================================================ */
+let queue=[],cur=0,score={ok:0,err:0};
+let answered=false,wrongTries=0,scored=false,hintOpen=false;
+
+/* ================================================================
+   RENDER
+================================================================ */
+function renderSentence(tpl,filledAns){
+  if(filledAns!==undefined){
+    let d=filledAns;
+    if(tpl.startsWith('{b}')) d=cap(d);
+    return tpl.replace('{b}',`<span class="filled-ans">${d}</span>`);
+  }
+  return tpl.replace('{b}','<span class="blank">___</span>');
+}
+
+function render(){
+  const ex=queue[cur];
+  const total=queue.length;
+
+  document.getElementById('progLbl').textContent=`${cur+1} / ${total}`;
+  document.getElementById('progFill').style.width=`${Math.round(cur/total*100)}%`;
+  updateScore();
+
+  document.getElementById('wordTag').textContent=ex.word.toUpperCase();
+
+  const gb=document.getElementById('genBadge');
+  gb.textContent=ex.gender;
+  gb.className='badge '+ex.gc;
+
+  document.getElementById('sentWrap').innerHTML=renderSentence(ex.tpl);
+  document.getElementById('basesWrap').innerHTML=
+    'Osnova:&nbsp;'+ex.bases.map(b=>`<span class="chip">${b}</span>`).join('');
+
+  const inp=document.getElementById('ainput');
+  inp.value='';inp.disabled=false;inp.className='ainput';
+
+  const fb=document.getElementById('fb');
+  fb.className='feedback';fb.innerHTML='';
+
+  const hb=document.getElementById('hintBody');
+  hb.textContent=(ex.rule+(ex.exc?'\n\n'+ex.exc:''));
+  hb.className='hint-body';
+  hintOpen=false;
+  document.getElementById('btnHint').textContent='Prikaži namig';
+
+  document.getElementById('btnAct').textContent='Preveri';
+  document.getElementById('btnAct').disabled=false;
+
+  answered=false;wrongTries=0;scored=false;
+
+  const card=document.getElementById('exCard');
+  card.style.animation='none';
+  void card.offsetHeight;
+  card.style.animation='';
+
+  setTimeout(()=>inp.focus(),60);
+}
+
+function updateScore(){
+  document.getElementById('scOk').textContent=`${score.ok} pravilno`;
+  document.getElementById('scErr').textContent=`${score.err} napak`;
+}
+
+/* ================================================================
+   LOGIC
+================================================================ */
+function check(){
+  const ex=queue[cur];
+  const inp=document.getElementById('ainput');
+  const val=inp.value;
+  if(!val.trim()) return;
+
+  const ok=matches(val,ex);
+  const fb=document.getElementById('fb');
+
+  if(ok){
+    if(!scored){score.ok++;scored=true;}
+    updateScore();
+    inp.className='ainput ok';
+    fb.className='feedback fb-ok show';
+    fb.innerHTML=
+      `Pravilno! &rarr; <span class="fb-ans">${ex.ans}</span>`+
+      `<div class="fb-rule">${ex.rule}</div>`+
+      (ex.exc?`<div class="fb-exc">${ex.exc.replace(/\n/g,'<br>')}</div>`:'');
+    document.getElementById('sentWrap').innerHTML=renderSentence(ex.tpl,ex.ans);
+    answered=true;inp.disabled=true;
+    document.getElementById('btnAct').textContent=cur+1>=queue.length?'Zakljuci':'Naprej';
+  } else {
+    wrongTries++;
+    inp.className='ainput err';
+    if(wrongTries>=2){
+      if(!scored){score.err++;scored=true;}
+      updateScore();
+      fb.className='feedback fb-err show';
+      fb.innerHTML=
+        `Vas odgovor: <strong>${val}</strong> &rarr; pravilno: <span class="fb-ans">${ex.ans}</span>`+
+        `<div class="fb-rule">${ex.rule}</div>`+
+        (ex.exc?`<div class="fb-exc">${ex.exc.replace(/\n/g,'<br>')}</div>`:'');
+      document.getElementById('sentWrap').innerHTML=renderSentence(ex.tpl,ex.ans);
+      answered=true;inp.disabled=true;
+      document.getElementById('btnAct').textContent=cur+1>=queue.length?'Zakljuci':'Naprej';
+    } else {
+      fb.className='feedback fb-try show';
+      fb.innerHTML=
+        `Napaka &mdash; poskusite znova!`+
+        `<div class="fb-rule">Namig: ${ex.rule}</div>`+
+        (ex.exc?`<div class="fb-exc">${ex.exc.replace(/\n/g,'<br>')}</div>`:'');
+      document.getElementById('btnAct').textContent='Poskusi znova';
+      inp.select();inp.focus();
+    }
+  }
+}
+
+function next(){
+  cur++;
+  if(cur>=queue.length){showDone();return;}
+  render();
+}
+
+function handleAction(){
+  if(answered) next();
+  else check();
+}
+
+function toggleHint(){
+  hintOpen=!hintOpen;
+  document.getElementById('hintBody').className='hint-body'+(hintOpen?' show':'');
+  document.getElementById('btnHint').textContent=hintOpen?'Skrij namig':'Prikaži namig';
+}
+
+function showDone(){
+  document.getElementById('mainSection').style.display='none';
+  document.getElementById('doneSection').className='done-wrap show';
+  const pct=Math.round(score.ok/queue.length*100);
+  document.getElementById('doneScore').textContent=score.ok;
+  document.getElementById('doneOf').textContent=`od ${queue.length} nalog`;
+  document.getElementById('doneMsg').textContent=
+    pct>=90?'Odlicno! Izjeme vam ne delajo tezav.':
+    pct>=70?'Zelo dobro! Se malo vaje in bo odlicno.':
+    pct>=50?'Dobro — nadaljujte z vadbo!':
+    'Ponovi! Izjeme zahtevajo vec vaje.';
+  const fill=document.getElementById('doneFill');
+  fill.style.background=pct>=80?'#3a8c5c':pct>=55?'#c08020':'#8c3a3a';
+  setTimeout(()=>fill.style.width=pct+'%',120);
+}
+
+function restart(){
+  queue=shuffle(EX);cur=0;score={ok:0,err:0};
+  document.getElementById('mainSection').style.display='';
+  document.getElementById('doneSection').className='done-wrap';
+  render();
+}
+
+document.getElementById('ainput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();handleAction();}
+});
+document.getElementById('btnAct').addEventListener('click',handleAction);
+document.getElementById('btnHint').addEventListener('click',toggleHint);
+
+queue=shuffle(EX);
+render();
+</script>
+</body>
+</html>
